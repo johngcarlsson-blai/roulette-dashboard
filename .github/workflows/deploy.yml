@@ -11,72 +11,42 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pages: write
       id-token: write
+      pages: write
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
       
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/configure-pages@v4
+      
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
       
-      - name: Install mamba
-        uses: mamba-org/setup-micromamba@v1
+      - uses: mamba-org/setup-micromamba@v1
         with:
           micromamba-version: '1.5.8-0'
           environment-file: 'build-environment.yml'
-          
-      - name: Debug Environment
+      
+      - name: Build site
         shell: bash -l {0}
         run: |
-          echo "Current directory:"
-          pwd
-          echo "Directory contents:"
-          ls -la
-          echo "Python location:"
-          which python
-          echo "Voici version:"
-          voici --version
-          
-      - name: Build Site
-        shell: bash -l {0}
-        run: |
-          echo "Building site..."
-          voici build --contents content --output-dir dist
-          echo "Build complete. Checking dist directory:"
-          ls -la dist/
-          
-      - name: Upload Pages Artifact
+          voici build --contents content --output-dir _site
+      
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
-          
-      - name: Verify Artifact Upload
-        run: |
-          echo "Checking for artifact..."
-          if [ -f "./_site/artifact.tar" ]; then
-            echo "Artifact found"
-            ls -la ./_site/
-          else
-            echo "Artifact not found in expected location"
-            echo "Current directory contents:"
-            ls -la
-            echo "_site directory contents (if it exists):"
-            ls -la _site/ || echo "_site directory not found"
-          fi
+          path: _site
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4
