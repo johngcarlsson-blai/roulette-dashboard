@@ -5,6 +5,7 @@ dependencies:
   - jupyterlite-xeus>=2.0.0,<3
   - voici_core>=0.7,<0.8
   - voici
-  - xeus-python
-  - ipywidgets>=8.0.0
-  - ipython
+  - xeus-python=0.17.2  # Specific version
+  - ipywidgets=8.1.1    # Specific version
+  - widgetsnbextension=4.0.9
+  - jupyterlab_widgets=3.0.9
