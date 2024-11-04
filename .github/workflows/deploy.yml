@@ -12,22 +12,40 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      
+      - name: List repository contents
+        run: ls -la
+      
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
+      
       - name: Install mamba
         uses: mamba-org/setup-micromamba@v1
         with:
           micromamba-version: '1.5.8-0'
           environment-file: 'build-environment.yml'
+      
+      - name: List environment
+        shell: bash -l {0}
+        run: |
+          which python
+          python --version
+          pip list
+          
       - name: Build the JupyterLite site
         shell: bash -l {0}
-        run: voici build --contents content --output-dir dist
+        run: |
+          ls -la content/  # Check content directory
+          voici build --contents content --output-dir dist
+          ls -la dist/  # Check build output
+      
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist
+
   deploy:
     needs: build
     if: github.ref == 'refs/heads/main'
